@@ -17,6 +17,8 @@ BLUE = (0, 0, 255)
 LIGHTRED = (255, 0, 0)
 RED = (128, 0, 0)
 
+FPS = 30
+
 INPUT1 = [pg.K_1, pg.K_2, pg.K_3, pg.K_4,
           pg.K_5, pg.K_6, pg.K_7, pg.K_8,
           pg.K_9]

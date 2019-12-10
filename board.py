@@ -14,27 +14,25 @@ class Tile:
         self.pos = (self.rect.x//TILESIZE, self.rect.y//TILESIZE)
         self.solved = False
         self.selected = False
-        self.clickable = True
         self.generated = False
         self.number = ""
 
-    def update(self):
-        if self.generated:
-            self.clickable = False
+    def initial_draw(self):
+        draw_text(self.image, BLACK, self.game.font, self.number)
+        self.game.screen.blit(self.image, self.rect)
+        pg.draw.rect(self.game.screen, BLACK, self.rect, 1)
 
     def draw(self):
         self.game.screen.blit(self.image, self.rect)
         pg.draw.rect(self.game.screen, BLACK, self.rect, 1)
+        # this check is for the solve button
         if not self.generated:
-            if self.selected:
-                self.image.fill(DARKGREY)
-                draw_text(self.image, GREEN, self.game.font, self.number)
-            else:
-                self.image.fill(WHITE)
-                draw_text(self.image, GREEN, self.game.font, self.number)
+            self.image.fill(WHITE)
+            draw_text(self.image, GREEN, self.game.font, self.number)
         else:
+            self.image.fill(WHITE)
             draw_text(self.image, BLACK, self.game.font, self.number)
-
+    
 
 def draw_text(screen, color, font, num=" ", x=17, y=0, size=50):
     font = pg.font.Font(font, size)

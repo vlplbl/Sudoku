@@ -17,9 +17,9 @@ class Game:
         self.difficulty = None
         self.starting = True
         self.clock = pg.time.Clock()
+        # so that the one file .exe can get the external font file
         if getattr(sys, 'frozen', False):
             game_folder = sys._MEIPASS
-        # If it's not use the path we're on now
         else:
             game_folder = path.dirname(__file__)
         self.font = path.join(game_folder, "Freesansbold.ttf")
@@ -41,15 +41,23 @@ class Game:
                 else:
                     tile.number = self.matrix[tile.pos[1]][tile.pos[0]]
                     tile.generated = True
+        
         self.clicked = False
         self.input = ""
         self.previous_tile = None
         self.waiting = True
+
+        # draw the board initially for optimal performance
+        self.screen.fill(WHITE)
+        for col in self.board:
+            for tile in col:
+                tile.initial_draw()
+
         self.run()
 
     def run(self):
         while self.playing:
-            self.clock.tick(60)
+            self.clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
@@ -73,7 +81,6 @@ class Game:
         counter = 0
         for col in self.board:
             for tile in col:
-                tile.update()
                 if tile.number != "":
                     counter += 1
                 if counter == len(self.board)*len(self.board[0]):
@@ -81,10 +88,11 @@ class Game:
                 if tile.pos == self.get_mouse_pos() and self.clicked:
                     tile.selected = True
                     self.input = ""
+                    # if the tile is one of the initially shown tiles
+                    if tile.generated:
+                        tile.selected = False
                     if self.previous_tile and self.previous_tile != tile:
                         self.previous_tile.selected = False
-                    if not tile.clickable:
-                        tile.selected = False
                     self.clicked = False
 
         for col in self.board:
@@ -103,14 +111,15 @@ class Game:
             for col in self.board:
                 for tile in col:
                     tile.selected = False
-                    tile.image.fill(WHITE)
                     tile.number = self.matrix[tile.pos[1]][tile.pos[0]]
             self.user_matrix = self.matrix
 
-        self.screen.fill(WHITE)
+        # pg.display.set_caption(f"FPS:{self.clock.get_fps():.2g}")
+
         for col in self.board:
             for tile in col:
-                tile.draw()
+                if tile.selected:
+                    tile.draw()
 
         # draw thick line each 3 blocks
         for i in range(3, 8, 3):
@@ -118,6 +127,8 @@ class Game:
                          (0, i*TILESIZE), (WIDTH, i*TILESIZE), 5)
             pg.draw.line(self.screen, BLACK,
                          (i*TILESIZE, 0), (i*TILESIZE, HEIGHT - TILESIZE), 5)
+        
+
         draw_button(self.screen, "SOLVE", YELLOW, LIGHTYELLOW,
                     WIDTH*6/8, HEIGHT - 60, 130, 50, self.font, show_solution)
         pg.display.flip()
@@ -148,7 +159,7 @@ class Game:
             self.starting = False
 
         while self.starting:
-            self.clock.tick(60)
+            self.clock.tick(FPS)
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.starting = False
@@ -181,7 +192,7 @@ class Game:
             self.starting = True
 
         while self.waiting:
-            self.clock.tick(60)
+            self.clock.tick(FPS)            
             for event in pg.event.get():
                 if event.type == pg.QUIT:
                     self.playing = False
